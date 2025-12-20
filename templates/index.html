@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSB Steganography</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 LSB Steganography</h1>
+        <p class="subtitle">Hide secret messages & voice recordings in images using Least Significant Bit technique</p>
+
+        <h2 style="color: white; margin-top: 30px; margin-bottom: 20px;">📝 Text Steganography</h2>
+        <div class="card-container">
+            <div class="card">
+                <div class="card-icon">🔒</div>
+                <h2>Encode Message</h2>
+                <p>Hide a secret message inside an image</p>
+                <a href="{{ url_for('encode_page') }}" class="btn btn-primary">Start Encoding</a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🔓</div>
+                <h2>Decode Message</h2>
+                <p>Extract hidden message from an image</p>
+                <a href="{{ url_for('decode_page') }}" class="btn btn-secondary">Start Decoding</a>
+            </div>
+        </div>
+
+        <h2 style="color: white; margin-top: 40px; margin-bottom: 20px;">🎤 Audio Steganography</h2>
+        <div class="card-container">
+            <div class="card">
+                <div class="card-icon">🎙️</div>
+                <h2>Encode Audio</h2>
+                <p>Hide voice recording inside an image</p>
+                <a href="{{ url_for('encode_audio_page') }}" class="btn btn-primary">Start Recording</a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🔊</div>
+                <h2>Decode Audio</h2>
+                <p>Extract hidden audio from an image</p>
+                <a href="{{ url_for('decode_audio_page') }}" class="btn btn-secondary">Extract Audio</a>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3>💡 Tips</h3>
+            <ul>
+                <li>Use PNG images for best results (lossless format)</li>
+                <li>Larger images can hide longer messages and audio recordings</li>
+                <li>The encoded image looks identical to the original</li>
+                <li>Audio: Record directly in browser or upload existing audio files</li>
+                <li>Audio is compressed automatically (50-70% size reduction)</li>
+                <li>Storage: Full HD (~0.74MB) | 4K (~3MB) | 8K (~12MB)</li>
+                <li>For long audio, use very large images (e.g., 10000x10000 pixels)</li>
+                <li>Max file size: 1000MB (1GB)</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+

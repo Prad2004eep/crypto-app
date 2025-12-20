@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encode Audio - LSB Steganography</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('index') }}" class="back-link">← Back to Home</a>
+        
+        <h1>🎤 Encode Audio</h1>
+        <p class="subtitle">Hide your voice recording inside an image</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="form-card">
+            <form method="POST" enctype="multipart/form-data" id="audioForm">
+                <div class="form-group">
+                    <label for="image">📷 Select Image</label>
+                    <input type="file" id="image" name="image" accept=".png,.jpg,.jpeg,.bmp" required>
+                    <small>Supported formats: PNG, JPG, JPEG, BMP (larger images can hide longer audio)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>🎙️ Record or Upload Audio</label>
+                    
+                    <div class="audio-controls">
+                        <button type="button" id="recordBtn" class="btn btn-secondary">🎙️ Start Recording</button>
+                        <button type="button" id="stopBtn" class="btn btn-secondary" style="display:none;">⏹️ Stop Recording</button>
+                        <span id="recordingTime" style="display:none; margin-left: 10px; color: red; font-weight: bold;">00:00</span>
+                    </div>
+                    
+                    <div id="audioPreview" style="display:none; margin-top: 15px;">
+                        <audio id="audioPlayer" controls style="width: 100%;"></audio>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 20px 0; color: #888;">OR</div>
+                    
+                    <input type="file" id="audioFile" name="audio" accept=".mp3,.wav,.ogg,.webm,.m4a">
+                    <small>Upload audio file: MP3, WAV, OGG, WebM, M4A</small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large">🔐 Encode & Download</button>
+            </form>
+        </div>
+        
+        <div class="info-box">
+            <h3>ℹ️ How it works</h3>
+            <p>Your voice recording is compressed (50-70% size reduction) and embedded into the image pixels using LSB steganography. The image looks identical but contains your hidden audio.</p>
+            <p><strong>Storage Capacity:</strong></p>
+            <ul>
+                <li>1920x1080 (Full HD): ~0.74 MB storage</li>
+                <li>3840x2160 (4K): ~3 MB storage</li>
+                <li>7680x4320 (8K): ~12 MB storage</li>
+                <li>For longer recordings, use very large images or multiple images</li>
+                <li>Max upload size: 1000MB (1GB)</li>
+            </ul>
+            <p><strong>Tip:</strong> For long recordings, use the included <code>create_large_image.py</code> script to generate large blank images with sufficient storage capacity.</p>
+        </div>
+    </div>
+    
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let recordingInterval;
+        let seconds = 0;
+        
+        const recordBtn = document.getElementById('recordBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const audioPreview = document.getElementById('audioPreview');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioFileInput = document.getElementById('audioFile');
+        const recordingTime = document.getElementById('recordingTime');
+        const audioForm = document.getElementById('audioForm');
+        
+        recordBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                seconds = 0;
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    audioPlayer.src = audioUrl;
+                    audioPreview.style.display = 'block';
+                    
+                    // Create a file from blob and set it to the file input
+                    const file = new File([audioBlob], 'recorded_audio.wav', { type: 'audio/wav' });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    audioFileInput.files = dataTransfer.files;
+                    
+                    stream.getTracks().forEach(track => track.stop());
+                    clearInterval(recordingInterval);
+                };
+                
+                mediaRecorder.start();
+                recordBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+                recordingTime.style.display = 'inline';
+                
+                recordingInterval = setInterval(() => {
+                    seconds++;
+                    const mins = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    recordingTime.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                }, 1000);
+                
+            } catch (err) {
+                alert('Error accessing microphone: ' + err.message);
+            }
+        });
+        
+        stopBtn.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                stopBtn.style.display = 'none';
+                recordBtn.style.display = 'inline-block';
+                recordingTime.style.display = 'none';
+            }
+        });
+        
+        audioFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                const audioUrl = URL.createObjectURL(file);
+                audioPlayer.src = audioUrl;
+                audioPreview.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
+

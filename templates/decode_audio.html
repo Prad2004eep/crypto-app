@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decode Audio - LSB Steganography</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('index') }}" class="back-link">← Back to Home</a>
+        
+        <h1>🔊 Decode Audio</h1>
+        <p class="subtitle">Extract hidden voice recording from an image</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if audio_decoded %}
+            <div class="result-card">
+                <h2>✅ Audio Extracted Successfully!</h2>
+
+                <div class="audio-player-container">
+                    <label>🎵 Play Audio:</label>
+                    <audio id="audioPlayer" controls autoplay style="width: 100%; margin-top: 15px;">
+                        <source src="{{ url_for('play_audio', filename=audio_filename) }}" type="audio/wav">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+
+                <div class="audio-info">
+                    <p><strong>File Size:</strong> {{ (audio_size / 1024 / 1024)|round(2) }} MB</p>
+                    <p><strong>Format:</strong> WAV Audio</p>
+                </div>
+
+                <div class="button-group">
+                    <a href="{{ url_for('download_audio', filename=audio_filename) }}" class="btn btn-primary">
+                        📥 Download Audio
+                    </a>
+                    <a href="{{ url_for('decode_audio_page') }}" class="btn btn-secondary">
+                        🔄 Decode Another
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="form-card">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="image">📷 Select Encoded Image</label>
+                        <input type="file" id="image" name="image" accept=".png,.jpg,.jpeg,.bmp" required>
+                        <small>Upload the image containing the hidden audio</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large">🔍 Extract Audio</button>
+                </form>
+            </div>
+        {% endif %}
+
+        <div class="info-box">
+            <h3>ℹ️ How it works</h3>
+            <p>The decoder extracts the least significant bits from each pixel, decompresses the data, and converts it back to audio. You can play it directly in the browser or download it.</p>
+        </div>
+    </div>
+</body>
+</html>
+
