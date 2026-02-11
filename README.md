@@ -46,7 +46,5 @@ For storing long audio recordings, create a large blank image:
 
 ```bash
 python create_large_image.py
-`
 
 This will help you generate images with sufficient storage capacity.
-
