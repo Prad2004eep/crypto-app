@@ -4,6 +4,7 @@ A sophisticated web-based steganography tool that hides secret messages and audi
 
 ## 🌟 Features
 
+
 ### 📝 Text Steganography
 - **Encode**: Hide text messages in images with military-grade encryption
 - **Decode**: Extract hidden messages from encoded images
@@ -40,6 +41,7 @@ A sophisticated web-based steganography tool that hides secret messages and audi
 - **Browser**: Modern browser with HTML5 audio support
 
 ## 🚀 Quick Start
+
 
 ### Installation
 
